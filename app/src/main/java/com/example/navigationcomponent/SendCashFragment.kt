@@ -37,8 +37,9 @@ class SendCashFragment : Fragment() {
         }
 
         val receiverName = args.receiverName
+        val test = args.test
 
-        binding.tvReceiver.text = "Send cash to $receiverName"
+        binding.tvReceiver.text = "Send cash to $receiverName\n$test"
 
         binding.btnSend.setOnClickListener {
 

@@ -30,7 +30,7 @@ class ChooseReceiverFragment : Fragment() {
             val receiverName = binding.etReceiverName.text.toString()
 
             val action = ChooseReceiverFragmentDirections
-                .actionChooseReceiverFragmentToSendCashFragment(receiverName)
+                .actionChooseReceiverFragmentToSendCashFragment(receiverName,"")
             findNavController().navigate(action)
 
         }
