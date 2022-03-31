@@ -1,62 +1,65 @@
 package com.example.navigationcomponent
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.LiveData
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.*
+import com.example.android.navigationadvancedsample.setupWithNavController
 import com.example.navigationcomponent.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private lateinit var navController: NavController
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    private var navController: LiveData<NavController>? = null
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navController = navHostFragment.navController
+        if (savedInstanceState == null)
+                setupBottomNav()
 
-        appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.homeFragment, R.id.settingsFragment, R.id.notificationsFragment), binding.drawerLayout
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        setupBottomNav()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun setupBottomNav() {
+        val graphIds = listOf(
+            R.navigation.main_nav_graph,
+            R.navigation.settings_nav_graph,
+            R.navigation.notifications_nav_graph
         )
-
-        setupActionBarWithNavController(navController, appBarConfiguration)
-//        binding.toolbar.setupWithNavController(navController)
-
-        binding.bottomNavView.setupWithNavController(navController)
-
-        binding.navDrawer.setupWithNavController(navController)
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav_view)
+        val controller = bottomNav.setupWithNavController(
+            graphIds,
+            supportFragmentManager,
+            R.id.nav_host_fragment,
+            intent
+        )
+        controller.observe(this){
+            setupActionBarWithNavController(it)
+        }
+        navController = controller
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return navController?.value?.navigateUp()!! || super.onSupportNavigateUp()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        return when(item.itemId){
-            R.id.item_about_app ->{
-                val action = MainNavGraphDirections.actionGlobalAboutAppFragment()
-                navController.navigate(action)
-                return true
-            }
-            else -> item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
-        }
-
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
 }

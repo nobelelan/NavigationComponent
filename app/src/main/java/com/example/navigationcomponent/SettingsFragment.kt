@@ -34,7 +34,7 @@ class SettingsFragment : Fragment() {
             SampleData.defaultAmount.value = defaultAmount
         }
         binding.btnAboutApp.setOnClickListener {
-            val action = MainNavGraphDirections.actionGlobalAboutAppFragment()
+            val action = SettingsFragmentDirections.actionSettingsFragmentToAboutAppFragment()
             findNavController().navigate(action)
         }
 
